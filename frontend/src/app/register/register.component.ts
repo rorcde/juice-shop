@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
- * SPDX-License-Identifier: MIT
- */
-
 import { SecurityAnswerService } from '../Services/security-answer.service'
 import { UserService } from '../Services/user.service'
 import { type AbstractControl, UntypedFormControl, Validators } from '@angular/forms'
@@ -11,6 +6,7 @@ import { SecurityQuestionService } from '../Services/security-question.service'
 import { Router } from '@angular/router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { MatSnackBar } from '@angular/material/snack-bar'
+import { timingSafeEqual } from 'crypto'
 
 import { faExclamationCircle, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FormSubmitService } from '../Services/form-submit.service'
@@ -88,11 +84,12 @@ export class RegisterComponent implements OnInit {
 
 function matchValidator (passwordControl: AbstractControl) {
   return function matchOtherValidate (repeatPasswordControl: UntypedFormControl) {
-    const password = passwordControl.value
-    const passwordRepeat = repeatPasswordControl.value
-    if (password !== passwordRepeat) {
+    const password = Buffer.from(passwordControl.value, 'utf-8')
+    const passwordRepeat = Buffer.from(repeatPasswordControl.value, 'utf-8')
+    if (timingSafeEqual(password, passwordRepeat)) {
+      return null
+    } else {
       return { notSame: true }
     }
-    return null
   }
 }
