@@ -2,7 +2,6 @@
  * Copyright (c) 2014-2024 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
-
 import { UserService } from '../Services/user.service'
 import { SecurityQuestionService } from '../Services/security-question.service'
 import { type AbstractControl, UntypedFormControl, Validators } from '@angular/forms'
@@ -12,6 +11,7 @@ import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { type SecurityQuestion } from '../Models/securityQuestion.model'
 import { TranslateService } from '@ngx-translate/core'
+import crypto from 'crypto'
 
 library.add(faSave, faEdit)
 
@@ -31,9 +31,9 @@ export class ForgotPasswordComponent {
   public timeoutDuration = 1000
   private timeout
 
-  constructor (private readonly securityQuestionService: SecurityQuestionService, private readonly userService: UserService, private readonly translate: TranslateService) { }
+  constructor(private readonly securityQuestionService: SecurityQuestionService, private readonly userService: UserService, private readonly translate: TranslateService) { }
 
-  findSecurityQuestion () {
+  findSecurityQuestion() {
     clearTimeout(this.timeout)
     this.timeout = setTimeout(() => {
       this.securityQuestion = undefined
@@ -60,10 +60,10 @@ export class ForgotPasswordComponent {
     }, this.timeoutDuration)
   }
 
-  resetPassword () {
+  resetPassword() {
     this.userService.resetPassword({
       email: this.emailControl.value,
-      answer: this.securityQuestionControl.value,
+      answer: crypto.timingSafeEqual(Buffer.from(this.securityQuestionControl.value, 'utf-8'), Buffer.from(this.securityQuestion, 'utf-8')) ? this.securityQuestionControl.value : '',
       new: this.passwordControl.value,
       repeat: this.repeatPasswordControl.value
     }).subscribe(() => {
@@ -81,7 +81,7 @@ export class ForgotPasswordComponent {
     })
   }
 
-  resetForm () {
+  resetForm() {
     this.emailControl.setValue('')
     this.emailControl.markAsPristine()
     this.emailControl.markAsUntouched()
@@ -96,7 +96,7 @@ export class ForgotPasswordComponent {
     this.repeatPasswordControl.markAsUntouched()
   }
 
-  resetErrorForm () {
+  resetErrorForm() {
     this.emailControl.markAsPristine()
     this.emailControl.markAsUntouched()
     this.securityQuestionControl.setValue('')
@@ -111,8 +111,8 @@ export class ForgotPasswordComponent {
   }
 }
 
-function matchValidator (passwordControl: AbstractControl) {
-  return function matchOtherValidate (repeatPasswordControl: UntypedFormControl) {
+function matchValidator(passwordControl: AbstractControl) {
+  return function matchOtherValidate(repeatPasswordControl: UntypedFormControl) {
     const password = passwordControl.value
     const passwordRepeat = repeatPasswordControl.value
     if (password !== passwordRepeat) {
