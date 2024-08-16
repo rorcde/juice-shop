@@ -11,6 +11,7 @@ import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { FormSubmitService } from '../Services/form-submit.service'
 import { TranslateService } from '@ngx-translate/core'
+import crypto from 'crypto';
 
 library.add(faSave, faEdit)
 
@@ -33,7 +34,8 @@ export class ChangePasswordComponent {
   }
 
   changePassword () {
-    if (localStorage.getItem('email')?.match(/support@.*/) && !this.newPasswordControl.value.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,30}/)) {
+    if (crypto.timingSafeEqual(Buffer.from(localStorage.getItem('email')?.match(/support@.*/), 'utf-8'), Buffer.from('support@', 'utf-8')) && 
+      !this.newPasswordControl.value.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,30}/)) {
       console.error('Parola echipei de asistență nu respectă politica corporativă pentru conturile privilegiate! Vă rugăm să schimbați parola în consecință!')
     }
     this.userService.changePassword({
@@ -77,9 +79,10 @@ function matchValidator (newPasswordControl: AbstractControl) {
   return function matchOtherValidate (repeatNewPasswordControl: UntypedFormControl) {
     const password = newPasswordControl.value
     const passwordRepeat = repeatNewPasswordControl.value
-    if (password !== passwordRepeat) {
+    if (!crypto.timingSafeEqual(Buffer.from(password, 'utf-8'), Buffer.from(passwordRepeat, 'utf-8'))) {
       return { notSame: true }
     }
     return null
   }
 }
+

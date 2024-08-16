@@ -4,6 +4,7 @@
  */
 
 'use strict'
+const path = require('path')
 
 module.exports = function (grunt) {
   const os = grunt.option('os') || process.env.PCKG_OS_NAME || ''
@@ -28,7 +29,7 @@ module.exports = function (grunt) {
       pckg: {
         options: {
           mode: os === 'linux' ? 'tgz' : 'zip',
-          archive: 'dist/<%= pkg.name %>-<%= pkg.version %>' + (node ? ('_node' + node) : '') + (os ? ('_' + os) : '') + (platform ? ('_' + platform) : '') + (os === 'linux' ? '.tgz' : '.zip')
+          archive: path.join('dist', `${pkg.name}-${pkg.version}` + (node ? (`_node${node}`) : '') + (os ? (`_${os}`) : '') + (platform ? (`_${platform}`) : '') + (os === 'linux' ? '.tgz' : '.zip'))
         },
         files: [
           {
@@ -62,7 +63,7 @@ module.exports = function (grunt) {
               'uploads/complaints/.gitkeep',
               'views/**'
             ],
-            dest: 'juice-shop_<%= pkg.version %>/'
+            dest: path.join('juice-shop_' + pkg.version + '/')
           }
         ]
       }

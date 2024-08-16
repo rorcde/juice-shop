@@ -4,6 +4,7 @@ import config from 'config'
 import type { Memory as MemoryConfig, Product as ProductConfig } from './lib/config.types'
 import * as utils from './lib/utils'
 import * as otplib from 'otplib'
+import couponData from 'data/chatbot/couponData.json'
 
 export default defineConfig({
   projectId: '3hrkhu',
@@ -46,10 +47,7 @@ export default defineConfig({
           )[0]
         },
         GetCouponIntent () {
-          const trainingData = require(`data/chatbot/${utils.extractFilename(
-            config.get('application.chatBot.trainingData')
-          )}`)
-          const couponIntent = trainingData.data.filter(
+          const couponIntent = couponData.data.filter(
             (data: { intent: string }) => data.intent === 'queries.couponCode'
           )[0]
           return couponIntent
